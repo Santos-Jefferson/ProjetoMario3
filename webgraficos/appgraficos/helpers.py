@@ -15,33 +15,11 @@ import sqlite3
 import io
 import numpy as np
 import itertools as it
-import flopy
 from flopy.discretization.structuredgrid import StructuredGrid
-import pandas as pd
-
-# Aqui é onde vai a base de dados, o diretorio dos arquivos
-
-os.chdir('/Users/Usuario/Documents/MAQUINA_VIRTUAL/Documents/')
-directorio_actual = os.getcwd()
-carpeta = Path(directorio_actual)
-BD_ws = carpeta / 'PracticaInv/E1/BD.db'
-
-# Aqui é onde vai o input
-numceldasi = 10  # tiene que ser numeros pares
-numLayi = numLayf = 10
-topRef = 100  # Superficie do solo
-botRef = 50  # Profundidade de solo
-G = 0  #
-h1 = 100  #
-hk = 1  #
-vk = (hk / 10)
-Caudal = 1  # Caudal en litros/segundo #
-
-ArrayEsp = [10, 30, 60, 90, 120]
 
 
 # Este é um grafico
-def PlotT1(BD_ws, hk, G, Caudal, ArrayEsp, Capa, ExagVert, topRef):
+def PlotT1(BD_ws, hk, G, Caudal, ArrayEsp, Capa, ExagVert, topref):
     fig = plt.figure(figsize=(10, 10))
 
     MinArray = []
@@ -71,7 +49,7 @@ def PlotT1(BD_ws, hk, G, Caudal, ArrayEsp, Capa, ExagVert, topRef):
         NC.append(Xn)
         x2 = np.linspace((MaxL - Xn * ArrayEsp[i]), MaxL, Xn)
 
-        xmin, xmax, ymin, ymax = plt.axis([0, MaxL, np.amin(MinArray) * 0.995, topRef])
+        xmin, xmax, ymin, ymax = plt.axis([0, MaxL, np.amin(MinArray) * 0.995, topref])
         ax = plt.gca()
         t = ax.set_title('''Capa = {},  Esp Celda: {},  ncol: {}  
         Longitud: {},  Hmin: {}'''.format(Capa, ArrayEsp, NC, LongDist, MinArray))
@@ -106,14 +84,7 @@ def convert_array(text):
     return np.load(out)
 
 
-# Aqui é input pra um grafico
-# Grafica para la capa deseada con la exageracion vertical deseada las diferentes condiciones simuladas en I1
-Capa = 10
-ExagVert = 1000
-PlotT1(BD_ws, hk, G, Caudal, ArrayEsp, Capa, ExagVert, topRef)
-
-
-def PlotT2(BD_ws, hk, G, Caudal, ArrayEsp, Capa, ExagVert, Xmin, Xmax, Ymin, topRef):
+def PlotT2(BD_ws, hk, G, Caudal, ArrayEsp, Capa, ExagVert, Xmin, Xmax, Ymin, topref):
     fig = plt.figure(figsize=(10, 10))
 
     Table = 'G{}Q{}KI'.format(G, Caudal)
@@ -150,7 +121,7 @@ def PlotT2(BD_ws, hk, G, Caudal, ArrayEsp, Capa, ExagVert, Xmin, Xmax, Ymin, top
     x2_i = Xs[:-1]
 
     xmin, xmax, ymin, ymax = plt.axis([(MaxL - (longitud / 2)) * Xmin, (MaxL - (longitud / 2)) * Xmax,
-                                       (topRef - np.amin(MinArray)) * Ymin + np.amin(MinArray) * 0.995, topRef])
+                                       (topref - np.amin(MinArray)) * Ymin + np.amin(MinArray) * 0.995, topref])
     ax = plt.gca()
     t = ax.set_title('''Capa = {},  Esp Celda: {},  ncol: {}  
     Longitud: {},  Hmin: {}'''.format(Capa, [delcol_a, delcol_b, 'Irregular'], NC, longitud, MinArray))
@@ -160,17 +131,6 @@ def PlotT2(BD_ws, hk, G, Caudal, ArrayEsp, Capa, ExagVert, Xmin, Xmax, Ymin, top
     plt.plot(x2_i, CiH_i, color='green')
 
     return (x2_a, x2_b, x2_i, CiH_a, CiH_b, CiH_i)
-
-
-# Grafica para la capa deseada con la exageracion vertical deseada en un recuadro deseado enmarcado por Xmin, Xmax, Ymin
-# las curva de mayor espaciamento 'a', la de menor espaciamento 'b' y la de distribucion irregular 'i'
-Capa = 10
-ExagVert = 1000
-Xmin = 0.9;
-Xmax = 1  # 0-1 Fraccion de la longitud total
-Ymin = 0  # 0-1 Fraccion del abatimiento total
-(x2_a, x2_b, x2_i, CiH_a, CiH_b, CiH_i) = PlotT2(BD_ws, hk, G, Caudal, ArrayEsp, Capa, ExagVert, Xmin, Xmax, Ymin,
-                                                 topRef)
 
 
 def DisIrregurlar(BD_ws, G, Caudal, hk):
@@ -448,12 +408,7 @@ def distCelda(SerieAcum, DivAcum, DivBloque, Intervalo, R, Array, serie):
                             break
 
 
-# Calcula las distribucion irregular de espaciamento de celda optimo
-(A, D) = DisIrregurlar(BD_ws, G, Caudal, hk)  # Isso terá que ser vizualizado no site
-print(D)
-
-
-def PlotT2I(BD_ws, hk, G, Caudal, Capa, D):
+def PlotT2I(BD_ws, hk, G, Caudal, Capa, D, folderpath):
     # Pegar os dados de uma tabela e procurar o arquivo em um lugar certo e fazer umas interações
     Table = 'G{}Q{}KI'.format(G, Caudal)
     Id = 'K{}I'.format(hk)
@@ -463,8 +418,8 @@ def PlotT2I(BD_ws, hk, G, Caudal, Capa, D):
     hmax = np.ma.round(h[Capa - 1].max(), decimals=1)
     Fitcolor = (hmax - hmin) * 0.8 + hmin
     # --------------------------------------------------
-    MyFiles = Path(carpeta / 'PracticaInv/E1/SaveByMe').mkdir(parents=True, exist_ok=True)
-    MyFiles = os.path.join(carpeta / 'PracticaInv/E1/SaveByMe')
+    MyFiles = Path(folderpath/'Documents/SaveByMe').mkdir(parents=True, exist_ok=True)
+    MyFiles = os.path.join(folderpath/'Documents/SaveByMe')
     # --------------------------------------------------
     Xt = np.array(list(it.accumulate(D)))
     x = Xt[:]
@@ -563,14 +518,7 @@ def PlotT2I(BD_ws, hk, G, Caudal, Capa, D):
     plt.savefig(MyFiles + '/f9.png', format='png')
 
 
-# --------------------------------------------------
-
-# Opciones Graficas para el modelo con distribucion irregular de celdas
-Capa = 1
-PlotT2I(BD_ws, hk, G, Caudal, Capa, D)
-
-
-def PlotT3(BD_ws, hk, G, Caudal, ArrayEsp, Capa, C, F, P, ExagVert, Xmin, Xmax, topRef, DeltaPlot):
+def PlotT3(BD_ws, hk, G, Caudal, ArrayEsp, Capa, C, F, P, ExagVert, Xmin, Xmax, topref, DeltaPlot):
     fig = plt.figure(figsize=(15, 15))
     # Criar outra aba para mostrar daqui pra frente
     Table = 'G{}Q{}KI'.format(G, Caudal)
@@ -579,7 +527,7 @@ def PlotT3(BD_ws, hk, G, Caudal, ArrayEsp, Capa, C, F, P, ExagVert, Xmin, Xmax, 
     xd = convert_array(RecordD[2])
     Xt = np.array(list(it.accumulate(xd)))
     x = Xt[:]
-    z = np.linspace(topRef - 0.5, topRef - P + 0.5, P)
+    z = np.linspace(topref - 0.5, topref - P + 0.5, P)
 
     Table = 'resp3G{}Q{}KIP'.format(G, Caudal)
     Id = 'K{}C{}F{}P{}'.format(hk, C, F, P)
@@ -601,7 +549,7 @@ def PlotT3(BD_ws, hk, G, Caudal, ArrayEsp, Capa, C, F, P, ExagVert, Xmin, Xmax, 
     levels = np.arange(hminC3, hmax + DeltaPlot, DeltaPlot)
     c = plt.contour(x, z, h, levels=levels, colors='blue', linewidths=1.0)
     plt.clabel(c, fmt='%2.1f')
-    plt.axis([Xmin, Xmax, topRef - P, topRef])
+    plt.axis([Xmin, Xmax, topref - P, topref])
     plt.plot(x, h[Capa - 1], 'r--', linewidth=2)
     ax = plt.gca()
     ax.set_aspect(ExagVert)
@@ -612,51 +560,12 @@ def PlotT3(BD_ws, hk, G, Caudal, ArrayEsp, Capa, C, F, P, ExagVert, Xmin, Xmax, 
     for b in z:
         plt.plot([x[0], x[-1]], [b, b], color='black', alpha=.2, linestyle='-')
 
-    os.chdir('/Users/Usuario/Documents/MAQUINA_VIRTUAL/Documents/')
+    os.chdir('Documents/')
     directorio_actual = os.getcwd()
     carpeta = Path(directorio_actual)
-    MyFiles = Path(carpeta / 'PracticaInv/E1/SaveByMe').mkdir(parents=True, exist_ok=True)
-    MyFiles = os.path.join(carpeta / 'PracticaInv/E1/SaveByMe')
+    MyFiles = Path(carpeta/'Documents/SaveByMe').mkdir(parents=True, exist_ok=True)
+    MyFiles = os.path.join(carpeta/'Documents/SaveByMe')
     plt.savefig(MyFiles + '/Plot3.png', format='png')
-
-
-# Colocar mais inputs nessas informações
-
-Capa = 1  #
-C = 9  #
-F = 5  #
-P = 50  #
-ExagVert = 100
-Xmin = 1;
-Xmax = 11161
-# Xmin = 4000; Xmax =7000 # 0-1 Fraccion de la longitud total
-Ymin = 80  # 0-1 Fraccion del abatimiento total
-DeltaPlot = 0.1
-PlotT3(BD_ws, hk, G, Caudal, ArrayEsp, Capa, C, F, P, ExagVert, Xmin, Xmax, topRef, DeltaPlot)
-
-Capa = 1
-C = 9
-F = 5
-P = 28
-ExagVert = 1
-# Xmin = 1; Xmax =11161
-Xmin = 5450;
-Xmax = 5700  # 0-1 Fraccion de la longitud total
-Ymin = 80  # 0-1 Fraccion del abatimiento total
-DeltaPlot = 0.1
-PlotT3(BD_ws, hk, G, Caudal, ArrayEsp, Capa, C, F, P, ExagVert, Xmin, Xmax, topRef, DeltaPlot)
-
-Capa = 1
-C = 9
-F = 5
-P = 17
-ExagVert = 10
-# Xmin = 1; Xmax =11161
-Xmin = 5100;
-Xmax = 6100  # 0-1 Fraccion de la longitud total
-Ymin = 80  # 0-1 Fraccion del abatimiento total
-DeltaPlot = 0.1
-PlotT3(BD_ws, hk, G, Caudal, ArrayEsp, Capa, C, F, P, ExagVert, Xmin, Xmax, topRef, DeltaPlot)
 
 
 def get_water_table(heads, per_idx=None):
@@ -699,44 +608,7 @@ def get_water_table(heads, per_idx=None):
     return np.squeeze(wt)
 
 
-# Outro botão para pular as imagens
-# Daqui pra frente as funçoes serao juntas para apresentar as imagens
-Capa = 1
-C = 9
-F = 5
-P = 15
-
-Table = 'G{}Q{}KI'.format(G, Caudal)
-Id = 'K{}I'.format(hk)
-RecordD = readSingleRowTG(BD_ws, Table, Id)
-xd = convert_array(RecordD[2])
-Xt = np.array(list(it.accumulate(xd)))
-x = Xt[:]
-z = np.linspace(topRef - 0.5, topRef - P + 0.5, P)
-
-Table = 'resp3G{}Q{}KIP'.format(G, Caudal)
-Id = 'K{}C{}F{}P{}'.format(hk, C, F, P)
-RecordH = readSingleRowTG(BD_ws, Table, Id)
-h = convert_array(RecordH[5])
-H = np.where(h < 0, 0, h)
-HminC1 = H != 0
-HminC2 = H[HminC1]
-
-fig = plt.figure(figsize=(15, 15))
-wt = get_water_table(H, per_idx=None)
-plt.imshow(wt)
-plt.colorbar(label='Elevation');
-
-Table = 'G{}Q{}KI'.format(G, Caudal)
-Id = 'K{}I'.format(hk)
-Record = readSingleRowTG(BD_ws, Table, Id)
-h = convert_array(Record[15])
-hmin = np.ma.round(h[Capa - 1].min(), decimals=1)
-hmax = np.ma.round(h[Capa - 1].max(), decimals=1)
-Fitcolor = (hmax - hmin) * 0.8 + hmin
-
-
-def get_gradients(heads, nodata, per_idx=None):
+def get_gradients(heads, topref, nodata, per_idx=None):
     """Calculates the hydraulic gradients from the heads
     array for each stress period.
     Parameters
@@ -768,7 +640,7 @@ def get_gradients(heads, nodata, per_idx=None):
     for per in per_idx:
         hds = heads[per]
         a, b, c = hds.shape
-        z = np.linspace(topRef - 0.5, topRef - a + 0.5, a)
+        z = np.linspace(topref - 0.5, topref - a + 0.5, a)
         z1 = np.ones((b, c), dtype=np.int32)
         zcnt_per = np.array([i * z1 for i in z])
         unsat = zcnt_per > hds
@@ -781,30 +653,7 @@ def get_gradients(heads, nodata, per_idx=None):
     return np.squeeze(grad), unsat, hds, zcnt_per, dz, dh
 
 
-grad, unsat, hds, zcnt_per, dz, dh = get_gradients(h, nodata=-999)
-# fig = plt.figure(figsize=(15,15))
-# ax = plt.gca()
-
-fig, axes = plt.subplots(3, 3, figsize=(11, 8.5))
-axes = axes.flat
-
-for i, vertical_gradient in enumerate(grad):
-    im = axes[i].imshow(vertical_gradient, vmin=grad.min(), vmax=grad.max())
-    axes[i].set_title('Vertical gradient\nbetween Layers {} and {}'.format(i + 1, i + 2))
-    ctr = axes[i].contour(vertical_gradient, levels=[-.1, -.05, 0., .05, .1],
-                          colors='k', linewidths=0.5)
-    plt.clabel(ctr, fontsize=8, inline=1)
-
-fig.subplots_adjust(right=.8)
-fig.subplots_adjust(top=1.1)
-cbar_ax = fig.add_axes([0.85, 0.15, 0.03, 0.7])
-fig.colorbar(im, cax=cbar_ax, label='positive downward');
-
-pd.options.display.float_format = '{:.3f}'.format
-df2 = pd.DataFrame(data=dh[0])
-
-
-def get_saturated_thickness(heads, per_idx=None):
+def get_saturated_thickness(heads, topref, per_idx=None):
     """Calculates the saturated thickness for each cell from the heads
     array for each stress period.
     Parameters
@@ -826,7 +675,7 @@ def get_saturated_thickness(heads, per_idx=None):
     heads = np.array(heads, ndmin=4)
 
     p, a, b, c = heads.shape
-    b1 = np.linspace(topRef - 5, topRef - a * 5, a)
+    b1 = np.linspace(topref - 5, topref - a * 5, a)
     b2 = np.ones((b, c), dtype=np.int32)
     botm = np.array([i * b2 for i in b1])
     t1 = np.ones(a)
@@ -851,25 +700,3 @@ def get_saturated_thickness(heads, per_idx=None):
         sat_thickness.append(perthickness)
 
     return np.squeeze(sat_thickness)
-
-
-st = get_saturated_thickness(H, per_idx=None)
-fig = plt.figure(figsize=(15, 15))
-plt.imshow(st)
-plt.colorbar(label='Saturated thickness')
-plt.title('Layer 1');
-
-# Arquivos de texto, extensão do flopy, colocar meu novo roteiro
-model_ws = os.path.join(carpeta / 'PracticaInv/E1/Model')
-model_name = 'ex'
-lst = flopy.utils.Mf6ListBudget(os.path.join(model_ws, model_name + ".lst"))  # Arquivo de texto
-cumulative = lst.get_budget()
-
-df = lst.get_dataframes(diff=True)[0]
-ax = df.plot(kind="bar", figsize=(6, 6))
-ax.set_xticklabels(["historic", "scenario"])
-plt.show()
-
-incrementaldf, cumulativedf = lst.get_dataframes()
-incrementaldf
-

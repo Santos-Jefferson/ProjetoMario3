@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h5>Nesta página deve ser apresentado os gráficos gerados e salvos na pasta Documents</h5>
+
+{% for field in form %}
+<p class="help">{{ field.value }}</p>
+{% endfor %}
+
+
+{% endblock %}
