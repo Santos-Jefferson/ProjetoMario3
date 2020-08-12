@@ -74,7 +74,7 @@ def resultados(request):
     # las curva de mayor espaciamento 'a', la de menor espaciamento 'b' y la de distribucion irregular 'i'
     Capa = 10
     ExagVert = 1000
-    Xmin = 0.9;
+    Xmin = 0.9
     Xmax = 1  # 0-1 Fraccion de la longitud total
     Ymin = 0  # 0-1 Fraccion del abatimiento total
     (x2_a, x2_b, x2_i, CiH_a, CiH_b, CiH_i) = PlotT2(BD_ws, hk, G, Caudal, ArrayEsp, Capa, ExagVert, Xmin, Xmax, Ymin,

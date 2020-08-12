@@ -532,7 +532,7 @@ def PlotT2I(BD_ws, hk, G, Caudal, Capa, D, folderpath):
     cset = ax.contourf(X, Y, Z, zdir='y', offset=-1, cmap=cm.ocean)
     ax.view_init(30, 30)
     fig.colorbar(surf, ax=ax, shrink=0.5, aspect=5)
-    t = ax.set_title('Fig {} 3d projection Layer {}; hmin={:6.2f}, hmax={:6.2f}'.format(9, Capa, hmin, hmax),
+    t = ax.set_title('Fig {}: 3d projection Layer {}; hmin={:6.2f}, hmax={:6.2f}'.format(9, Capa, hmin, hmax),
                      loc='left')
     buf = BytesIO()
     plt.savefig(buf, format='png', dpi=300)

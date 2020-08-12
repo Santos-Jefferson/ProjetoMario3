@@ -2,15 +2,15 @@ from django import forms
 
 
 class PaginaInputForm(forms.Form):
-    numceldasi = forms.IntegerField(label='Num Cel')
-    numlayi = forms.IntegerField(label='Num Lay')
-    topref = forms.IntegerField(label='Superfície do Solo')
-    botref = forms.IntegerField(label='Profundidade do Solo')
-    g = forms.IntegerField(label='G')
-    h1 = forms.IntegerField(label='H1')
-    hk = forms.IntegerField(label='HK')
+    numceldasi = forms.IntegerField(label='Num Cel', initial=10)
+    numlayi = forms.IntegerField(label='Num Lay', initial=10)
+    topref = forms.IntegerField(label='Superfície do Solo', initial=100)
+    botref = forms.IntegerField(label='Profundidade do Solo', initial=50)
+    g = forms.IntegerField(label='G', initial=0)
+    h1 = forms.IntegerField(label='H1', initial=100)
+    hk = forms.IntegerField(label='HK', initial=1)
     # vk = forms.IntegerField(label='VK')
-    caudal = forms.IntegerField(label='Caudal')
+    caudal = forms.IntegerField(label='Caudal', initial=1)
 
 
 class Plot3InputForm(forms.Form):
