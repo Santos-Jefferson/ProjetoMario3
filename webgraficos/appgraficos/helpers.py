@@ -604,6 +604,7 @@ def PlotT3(BD_ws, hk, G, Caudal, ArrayEsp, Capa, C, F, P, ExagVert, Xmin, Xmax, 
     fig10 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
     # plt.savefig(MyFiles + '/Plot3.png', format='png')
     buf.close()
+    # teste
     return fig10
 
 
