@@ -18,7 +18,7 @@ class Plot3InputForm(forms.Form):
     g = forms.IntegerField(label='G')
     caudal = forms.IntegerField(label='Caudal')
     topref = forms.IntegerField(label='Superfície do Solo')
-    #test
+    #test2
 
 
     capa1 = forms.IntegerField(label='Capa1')
