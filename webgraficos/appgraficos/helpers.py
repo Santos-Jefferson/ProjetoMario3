@@ -16,6 +16,9 @@ import io
 import numpy as np
 import itertools as it
 from flopy.discretization.structuredgrid import StructuredGrid
+from io import BytesIO
+import base64
+
 
 
 # Este é um grafico
@@ -418,8 +421,8 @@ def PlotT2I(BD_ws, hk, G, Caudal, Capa, D, folderpath):
     hmax = np.ma.round(h[Capa - 1].max(), decimals=1)
     Fitcolor = (hmax - hmin) * 0.8 + hmin
     # --------------------------------------------------
-    MyFiles = Path(folderpath/'Documents/SaveByMe').mkdir(parents=True, exist_ok=True)
-    MyFiles = os.path.join(folderpath/'Documents/SaveByMe')
+    # MyFiles = Path(folderpath/'Documents/SaveByMe').mkdir(parents=True, exist_ok=True)
+    MyFiles = os.path.join(folderpath, 'Documents/SaveByMe')
     # --------------------------------------------------
     Xt = np.array(list(it.accumulate(D)))
     x = Xt[:]
@@ -439,7 +442,12 @@ def PlotT2I(BD_ws, hk, G, Caudal, Capa, D, folderpath):
     plt.scatter(mg.xcellcenters.ravel(), mg.ycellcenters.ravel(), s=1, c='k', alpha=0.1)
     t = ax.set_title('Fig {}: Cell vertices Celd Layer {}; hmin={:6.1f}, hmax={:6.1f}'.format(1, Capa, hmin, hmax),
                      loc='left')
-    plt.savefig(MyFiles + '/f1.png', format='png')
+    buf = BytesIO()
+    plt.savefig(buf, format='png', dpi=300)
+    fig1 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
+    # print(image_base64)
+
+    # plt.savefig(MyFiles + '/f1.png', format='png')
     # --------------------------------------------------
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(1, 1, 1, aspect='equal')  # DAQUI PRA FRENTE SAO TODAS AS FIGURAS
@@ -457,7 +465,10 @@ def PlotT2I(BD_ws, hk, G, Caudal, Capa, D, folderpath):
     line = np.array([(0, np.sum(D) / 2), (np.sum(D), np.sum(D) / 2)])
     plt.plot(line[:, 0], line[:, 1], 'b--', linewidth=3);
     t = ax.set_title('Fig {}: Layer {}; hmin={:6.1f}, hmax={:6.1f}'.format(2, Capa, hmin, hmax), loc='left')
-    plt.savefig(MyFiles + '/f2.png', format='png')
+    buf = BytesIO()
+    plt.savefig(buf, format='png', dpi=300)
+    fig2 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
+    # plt.savefig(MyFiles + '/f2.png', format='png')
     # --------------------------------------------------
     fig = plt.figure(figsize=(10, 10))
     dhdx, dhdy = np.gradient(Z)  # dh/dx, dh/dy
@@ -467,34 +478,49 @@ def PlotT2I(BD_ws, hk, G, Caudal, Capa, D, folderpath):
     plt.clabel(c, inline=True, colors='k', fontsize=12, fmt='%2.1f')
     plt.axis('equal')
     t = ax.set_title('Fig {}: vector Layer {}; hmin={:6.2f}, hmax={:6.2f}'.format(3, Capa, hmin, hmax), loc='left')
-    plt.savefig(MyFiles + '/f3.png', format='png')
+    buf = BytesIO()
+    plt.savefig(buf, format='png', dpi=300)
+    fig3 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
+    # plt.savefig(MyFiles + '/f3.png', format='png')
     # --------------------------------------------------
     fig = plt.figure(figsize=(10, 10))
     ax = plt.axes(projection='3d')
     ax.contour3D(x, y, Z, 50, cmap='binary')
     ax.view_init(60, 35)
     t = ax.set_title('Fig {}: 3d contour Layer {}; hmin={:6.2f}, hmax={:6.2f}'.format(4, Capa, hmin, hmax), loc='left')
-    plt.savefig(MyFiles + '/f4.png', format='png')
+    buf = BytesIO()
+    plt.savefig(buf, format='png', dpi=300)
+    fig4 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
+    # plt.savefig(MyFiles + '/f4.png', format='png')
     # --------------------------------------------------
     fig = plt.figure(figsize=(10, 10))
     ax = plt.axes(projection='3d')
     cset = ax.contour(x, y, Z, extend3d=True, cmap=cm.coolwarm)
     t = ax.set_title('Fig {}: 3d Cilindric contour Layer {}; hmin={:6.2f}, hmax={:6.2f}'.format(5, Capa, hmin, hmax),
                      loc='left')
-    plt.savefig(MyFiles + '/f5.png', format='png')
+    buf = BytesIO()
+    plt.savefig(buf, format='png', dpi=300)
+    fig5 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
+    # plt.savefig(MyFiles + '/f5.png', format='png')
     # --------------------------------------------------
     fig = plt.figure(figsize=(10, 10))
     ax = fig.gca(projection='3d')
     ax.plot_surface(X, Y, Z)
     ax.view_init(45, 60)
     t = ax.set_title('Fig {}: 3d Mesh Layer {}; hmin={:6.2f}, hmax={:6.2f}'.format(6, Capa, hmin, hmax), loc='left')
-    plt.savefig(MyFiles + '/f6.png', format='png')
+    buf = BytesIO()
+    plt.savefig(buf, format='png', dpi=300)
+    fig6 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
+    # plt.savefig(MyFiles + '/f6.png', format='png')
     # --------------------------------------------------
     fig = plt.figure(figsize=(10, 10))
     ax = fig.gca(projection='3d')
     ax.plot_wireframe(X, Y, Z, rstride=10, cstride=10)
     t = ax.set_title('Fig {}: 3d Grid Layer {}; hmin={:6.2f}, hmax={:6.2f}'.format(7, Capa, hmin, hmax), loc='left')
-    plt.savefig(MyFiles + '/f7.png', format='png')
+    buf = BytesIO()
+    plt.savefig(buf, format='png', dpi=300)
+    fig7 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
+    # plt.savefig(MyFiles + '/f7.png', format='png')
     # --------------------------------------------------
     fig = plt.figure(figsize=(10, 10))
     ax = fig.gca(projection='3d')
@@ -503,7 +529,10 @@ def PlotT2I(BD_ws, hk, G, Caudal, Capa, D, folderpath):
     fig.colorbar(surf, ax=ax, shrink=0.5, aspect=5)
     t = ax.set_title('Fig {}: 3d classification Layer {}; hmin={:6.2f}, hmax={:6.2f}'.format(8, Capa, hmin, hmax),
                      loc='left')
-    plt.savefig(MyFiles + '/f8.png', format='png')
+    buf = BytesIO()
+    plt.savefig(buf, format='png', dpi=300)
+    fig8 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
+    # plt.savefig(MyFiles + '/f8.png', format='png')
     # --------------------------------------------------
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(111, projection='3d')
@@ -515,7 +544,12 @@ def PlotT2I(BD_ws, hk, G, Caudal, Capa, D, folderpath):
     fig.colorbar(surf, ax=ax, shrink=0.5, aspect=5)
     t = ax.set_title('Fig {} 3d projection Layer {}; hmin={:6.2f}, hmax={:6.2f}'.format(9, Capa, hmin, hmax),
                      loc='left')
-    plt.savefig(MyFiles + '/f9.png', format='png')
+    buf = BytesIO()
+    plt.savefig(buf, format='png', dpi=300)
+    fig9 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
+    # plt.savefig(MyFiles + '/f9.png', format='png')
+    buf.close()
+    return fig1, fig2, fig3, fig4, fig5, fig6, fig7, fig8, fig9
 
 
 def PlotT3(BD_ws, hk, G, Caudal, ArrayEsp, Capa, C, F, P, ExagVert, Xmin, Xmax, topref, DeltaPlot):
@@ -565,7 +599,13 @@ def PlotT3(BD_ws, hk, G, Caudal, ArrayEsp, Capa, C, F, P, ExagVert, Xmin, Xmax, 
     carpeta = Path(directorio_actual)
     MyFiles = Path(carpeta/'Documents/SaveByMe').mkdir(parents=True, exist_ok=True)
     MyFiles = os.path.join(carpeta/'Documents/SaveByMe')
-    plt.savefig(MyFiles + '/Plot3.png', format='png')
+    buf = BytesIO()
+    plt.savefig(buf, format='png', dpi=300)
+    fig10 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
+    # plt.savefig(MyFiles + '/Plot3.png', format='png')
+    buf.close()
+    return fig10
+
 
 
 def get_water_table(heads, per_idx=None):

@@ -1,5 +1,5 @@
 import sys
-
+from webgraficos.settings import BASE_DIR
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from .forms import PaginaInputForm
@@ -34,21 +34,25 @@ def resultados(request):
     # sys.exit()
 
     # Aqui é onde vai a base de dados, o diretorio dos arquivos
-    os.chdir('Documents/')
+    print(BASE_DIR)
+    os.chdir(os.path.join(BASE_DIR, 'appgraficos\Documents'))
     directorio_actual = os.getcwd()
-    carpeta = Path(directorio_actual)
-    BD_ws = carpeta/'BD.db'
+    print(directorio_actual)
+    carpeta = directorio_actual
+    print(carpeta)
+    BD_ws = os.path.join(carpeta, 'BD.db')
+    print(BD_ws)
 
     # Aqui é onde vai o input
-    numceldasi = form['numceldasi']  # tiene que ser numeros pares
-    numLayi = numLayf = form['numlayi']
-    topRef = form['topref']  # Superficie do solo
-    botRef = form['botref']  # Profundidade de solo
-    G = form['g']  #
-    h1 = form['h1']  #
-    hk = form['hk']  #
-    vk = (hk / 10)
-    Caudal = form['caudal']  # Caudal en litros/segundo #
+    numceldasi = int(form['numceldasi'])  # tiene que ser numeros pares
+    numLayi = numLayf = int(form['numlayi'])
+    topRef = int(form['topref'])  # Superficie do solo
+    botRef = int(form['botref'])  # Profundidade de solo
+    G = int(form['g'])  #
+    h1 = int(form['h1'])  #
+    hk = int(form['hk'])  #
+    vk = hk / 10
+    Caudal = int(form['caudal'])  # Caudal en litros/segundo #
 
     ArrayEsp = [10, 30, 60, 90, 120]
 
@@ -76,7 +80,7 @@ def resultados(request):
 
     # Opciones Graficas para el modelo con distribucion irregular de celdas
     Capa = 1
-    PlotT2I(BD_ws, hk, G, Caudal, Capa, D, carpeta)
+    fig1, fig2, fig3, fig4, fig5, fig6, fig7, fig8, fig9 = PlotT2I(BD_ws, hk, G, Caudal, Capa, D, carpeta)
 
     # Colocar mais inputs nessas informações
 
@@ -90,7 +94,7 @@ def resultados(request):
     # Xmin = 4000; Xmax =7000 # 0-1 Fraccion de la longitud total
     Ymin = 80  # 0-1 Fraccion del abatimiento total
     DeltaPlot = 0.1
-    PlotT3(BD_ws, hk, G, Caudal, ArrayEsp, Capa, C, F, P, ExagVert, Xmin, Xmax, topRef, DeltaPlot)
+    fig10 = PlotT3(BD_ws, hk, G, Caudal, ArrayEsp, Capa, C, F, P, ExagVert, Xmin, Xmax, topRef, DeltaPlot)
 
     Capa = 1
     C = 9
@@ -103,7 +107,7 @@ def resultados(request):
     Ymin = 80  # 0-1 Fraccion del abatimiento total
     DeltaPlot = 0.1
 
-    PlotT3(BD_ws, hk, G, Caudal, ArrayEsp, Capa, C, F, P, ExagVert, Xmin, Xmax, topRef, DeltaPlot)
+    fig11 = PlotT3(BD_ws, hk, G, Caudal, ArrayEsp, Capa, C, F, P, ExagVert, Xmin, Xmax, topRef, DeltaPlot)
 
     Capa = 1
     C = 9
@@ -115,7 +119,7 @@ def resultados(request):
     Xmax = 6100  # 0-1 Fraccion de la longitud total
     Ymin = 80  # 0-1 Fraccion del abatimiento total
     DeltaPlot = 0.1
-    PlotT3(BD_ws, hk, G, Caudal, ArrayEsp, Capa, C, F, P, ExagVert, Xmin, Xmax, topRef, DeltaPlot)
+    fig12 = PlotT3(BD_ws, hk, G, Caudal, ArrayEsp, Capa, C, F, P, ExagVert, Xmin, Xmax, topRef, DeltaPlot)
 
     # Outro botão para pular as imagens
     # Daqui pra frente as funçoes serao juntas para apresentar as imagens
@@ -182,7 +186,7 @@ def resultados(request):
     plt.title('Layer 1');
 
     # Arquivos de texto, extensão do flopy, colocar meu novo roteiro
-    model_ws = os.path.join(carpeta / 'Model/')
+    model_ws = os.path.join(carpeta, 'Model')
     model_name = 'ex'
     lst = flopy.utils.Mf6ListBudget(os.path.join(model_ws, model_name + ".lst"))  # Arquivo de texto
     cumulative = lst.get_budget()
@@ -190,12 +194,27 @@ def resultados(request):
     df = lst.get_dataframes(diff=True)[0]
     ax = df.plot(kind="bar", figsize=(6, 6))
     ax.set_xticklabels(["historic", "scenario"])
-    plt.show()
+    # plt.show()
 
     incrementaldf, cumulativedf = lst.get_dataframes()
     incrementaldf
 
-    return render(request, 'appgraficos/resultados.html', {'form': form})
+    figuras = {
+        'fig1': fig1,
+        'fig2': fig2,
+        'fig3': fig3,
+        'fig4': fig4,
+        'fig5': fig5,
+        'fig6': fig6,
+        'fig7': fig7,
+        'fig8': fig8,
+        'fig9': fig9,
+        'fig10': fig10,
+        'fig11': fig11,
+        'fig12': fig12,
+    }
+
+    return render(request, 'appgraficos/resultados.html', figuras)
 
 
 def galeria(request):
