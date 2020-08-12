@@ -594,11 +594,11 @@ def PlotT3(BD_ws, hk, G, Caudal, ArrayEsp, Capa, C, F, P, ExagVert, Xmin, Xmax, 
     for b in z:
         plt.plot([x[0], x[-1]], [b, b], color='black', alpha=.2, linestyle='-')
 
-    os.chdir('Documents/')
-    directorio_actual = os.getcwd()
-    carpeta = Path(directorio_actual)
-    MyFiles = Path(carpeta/'Documents/SaveByMe').mkdir(parents=True, exist_ok=True)
-    MyFiles = os.path.join(carpeta/'Documents/SaveByMe')
+    # os.chdir('Documents/')
+    # directorio_actual = os.getcwd()
+    # carpeta = Path(directorio_actual)
+    # MyFiles = Path(carpeta/'Documents/SaveByMe').mkdir(parents=True, exist_ok=True)
+    # MyFiles = os.path.join(carpeta/'Documents/SaveByMe')
     buf = BytesIO()
     plt.savefig(buf, format='png', dpi=300)
     fig10 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')

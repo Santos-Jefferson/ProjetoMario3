@@ -215,7 +215,3 @@ def resultados(request):
     }
 
     return render(request, 'appgraficos/resultados.html', figuras)
-
-
-def galeria(request):
-    return render(request, 'appgraficos/galeria_imagens.html')
