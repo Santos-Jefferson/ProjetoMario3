@@ -14,14 +14,14 @@ from .helpers import PlotT1, PlotT2, PlotT2I, PlotT3, DisIrregurlar, readSingleR
     get_gradients, get_saturated_thickness
 
 # Aqui é onde vai a base de dados, o diretorio dos arquivos
-print(BASE_DIR)
+# print(BASE_DIR)
 os.chdir(os.path.join(BASE_DIR, 'appgraficos\Documents'))
 directorio_actual = os.getcwd()
-print(directorio_actual)
+# print(directorio_actual)
 carpeta = directorio_actual
-print(carpeta)
+# print(carpeta)
 BD_ws = os.path.join(carpeta, 'BD.db')
-print(BD_ws)
+# print(BD_ws)
 ArrayEsp = [10, 30, 60, 90, 120]
 
 
@@ -62,8 +62,6 @@ def resultados(request):
     vk = hk / 10
     Caudal = int(form['caudal'])  # Caudal en litros/segundo #
 
-
-
     # Aqui é input pra um grafico
     # Grafica para la capa deseada con la exageracion vertical deseada las diferentes condiciones simuladas en I1
     Capa = 10
@@ -77,12 +75,12 @@ def resultados(request):
     Xmin = 0.9
     Xmax = 1  # 0-1 Fraccion de la longitud total
     Ymin = 0  # 0-1 Fraccion del abatimiento total
-    (x2_a, x2_b, x2_i, CiH_a, CiH_b, CiH_i) = PlotT2(BD_ws, hk, G, Caudal, ArrayEsp, Capa, ExagVert, Xmin, Xmax, Ymin,
+    x2_a, x2_b, x2_i, CiH_a, CiH_b, CiH_i = PlotT2(BD_ws, hk, G, Caudal, ArrayEsp, Capa, ExagVert, Xmin, Xmax, Ymin,
                                                      topRef)
 
     # Calcula las distribucion irregular de espaciamento de celda optimo
     (A, D) = DisIrregurlar(BD_ws, G, Caudal, hk)  # Isso terá que ser vizualizado no site
-    print(D)
+    # print(D)
 
     # --------------------------------------------------
 

@@ -197,7 +197,7 @@ def DisIrregurlar(BD_ws, G, Caudal, hk):
     C = np.append(C, B)
     D = np.append(C, A)
 
-    return (A, D)
+    return A, D
 
 
 def readSingleRowTG2(BD_ws, Table, developerId):
@@ -212,9 +212,11 @@ def readSingleRowTG2(BD_ws, Table, developerId):
         record = cursor.fetchone()
         Optimo = convert_array(record[1])
 
+        cursor.close()
+
         return Optimo
 
-        cursor.close()
+
 
     except sqlite3.Error as error:
         print("Failed to read single row from sqlite table", error)

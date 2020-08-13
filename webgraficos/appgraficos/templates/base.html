@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>WebGraficos</title>
+    <script src="{% static 'js/jquery-3.5.1.min.js' %}"></script>
     <link href="{% static 'css/base.css' %}" rel="stylesheet">
 </head>
 <body>
@@ -27,5 +28,11 @@
 {% endblock %}
 </div>
 
+
+ <script>
+        $(window).on("load",function(){
+          $(".loader-wrapper").fadeOut("slow");
+        });
+    </script>
 </body>
 </html>
