@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<form action={% url "graficos01" %} method="post">
+{% csrf_token %}
+<table>
+    {{ form.as_table }}
+</table>
+<input type="submit" value="Gerar Gráficos">
+</form>
+
+
+{% endblock %}

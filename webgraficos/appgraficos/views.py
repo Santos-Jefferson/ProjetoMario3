@@ -1,8 +1,10 @@
 import sys
+from io import BytesIO
+import base64
 from webgraficos.settings import BASE_DIR
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
-from .forms import PaginaInputForm
+from .forms import PaginaInputForm, Plot3InputForm
 import os
 from pathlib import Path
 import matplotlib.pyplot as plt
@@ -13,35 +15,43 @@ import pandas as pd
 from .helpers import PlotT1, PlotT2, PlotT2I, PlotT3, DisIrregurlar, readSingleRowTG, convert_array, get_water_table, \
     get_gradients, get_saturated_thickness
 
+# Aqui é onde vai a base de dados, o diretorio dos arquivos
+os.chdir(os.path.join(BASE_DIR, 'appgraficos\Documents'))
+directorio_actual = os.getcwd()
+carpeta = directorio_actual
+BD_ws = os.path.join(carpeta, 'BD.db')
+ArrayEsp = [10, 30, 60, 90, 120]
+
 
 def index(request):
+    return render(request, 'appgraficos/index.html')
+
+
+def input_graficos01(request):
     if request.method == 'POST':
         form = PaginaInputForm(request.POST)
         if form.is_valid():
-            return HttpResponseRedirect('appgraficos/resultados.html')
+            return HttpResponseRedirect('appgraficos/graficos01.html')
     else:
         form = PaginaInputForm()
 
-    return render(request, 'appgraficos/index.html', {'form': form})
+    return render(request, 'appgraficos/input_graficos01.html', {'form': form})
 
 
-def resultados(request):
+def input_graficos02(request):
+    if request.method == 'POST':
+        form = Plot3InputForm(request.POST)
+        if form.is_valid():
+            return HttpResponseRedirect('appgraficos/graficos02.html')
+    else:
+        form = Plot3InputForm()
+
+    return render(request, 'appgraficos/input_graficos02.html', {'form': form})
+
+
+def graficos01(request):
     if request.method == 'POST':
         form = request.POST
-
-    # print(form)
-
-    # sys.exit()
-
-    # Aqui é onde vai a base de dados, o diretorio dos arquivos
-    print(BASE_DIR)
-    os.chdir(os.path.join(BASE_DIR, 'appgraficos\Documents'))
-    directorio_actual = os.getcwd()
-    print(directorio_actual)
-    carpeta = directorio_actual
-    print(carpeta)
-    BD_ws = os.path.join(carpeta, 'BD.db')
-    print(BD_ws)
 
     # Aqui é onde vai o input
     numceldasi = int(form['numceldasi'])  # tiene que ser numeros pares
@@ -54,79 +64,101 @@ def resultados(request):
     vk = hk / 10
     Caudal = int(form['caudal'])  # Caudal en litros/segundo #
 
-    ArrayEsp = [10, 30, 60, 90, 120]
-
     # Aqui é input pra um grafico
     # Grafica para la capa deseada con la exageracion vertical deseada las diferentes condiciones simuladas en I1
     Capa = 10
     ExagVert = 1000
-    PlotT1(BD_ws, hk, G, Caudal, ArrayEsp, Capa, ExagVert, topRef)
+    fig1 = PlotT1(BD_ws, hk, G, Caudal, ArrayEsp, Capa, ExagVert, topRef)
 
     # Grafica para la capa deseada con la exageracion vertical deseada en un recuadro deseado enmarcado por Xmin, Xmax, Ymin
     # las curva de mayor espaciamento 'a', la de menor espaciamento 'b' y la de distribucion irregular 'i'
     Capa = 10
     ExagVert = 1000
-    Xmin = 0.9;
+    Xmin = 0.9
     Xmax = 1  # 0-1 Fraccion de la longitud total
     Ymin = 0  # 0-1 Fraccion del abatimiento total
-    (x2_a, x2_b, x2_i, CiH_a, CiH_b, CiH_i) = PlotT2(BD_ws, hk, G, Caudal, ArrayEsp, Capa, ExagVert, Xmin, Xmax, Ymin,
-                                                     topRef)
+    x2_a, x2_b, x2_i, CiH_a, CiH_b, CiH_i, fig2 = PlotT2(BD_ws, hk, G, Caudal, ArrayEsp, Capa, ExagVert, Xmin, Xmax,
+                                                         Ymin,
+                                                         topRef)
 
     # Calcula las distribucion irregular de espaciamento de celda optimo
     (A, D) = DisIrregurlar(BD_ws, G, Caudal, hk)  # Isso terá que ser vizualizado no site
-    print(D)
+    # print(D)
 
     # --------------------------------------------------
 
     # Opciones Graficas para el modelo con distribucion irregular de celdas
     Capa = 1
-    fig1, fig2, fig3, fig4, fig5, fig6, fig7, fig8, fig9 = PlotT2I(BD_ws, hk, G, Caudal, Capa, D, carpeta)
+    fig3, fig4, fig5, fig6, fig7, fig8, fig9, fig10, fig11 = PlotT2I(BD_ws, hk, G, Caudal, Capa, D, carpeta)
 
-    # Colocar mais inputs nessas informações
+    figuras = {
+        'fig1': fig1,
+        'fig2': fig2,
+        'fig3': fig3,
+        'fig4': fig4,
+        'fig5': fig5,
+        'fig6': fig6,
+        'fig7': fig7,
+        'fig8': fig8,
+        'fig9': fig9,
+        'fig10': fig10,
+        'fig11': fig11,
+    }
 
-    Capa = 1  #
-    C = 9  #
-    F = 5  #
-    P = 50  #
-    ExagVert = 100
-    Xmin = 1;
-    Xmax = 11161
-    # Xmin = 4000; Xmax =7000 # 0-1 Fraccion de la longitud total
-    Ymin = 80  # 0-1 Fraccion del abatimiento total
-    DeltaPlot = 0.1
-    fig10 = PlotT3(BD_ws, hk, G, Caudal, ArrayEsp, Capa, C, F, P, ExagVert, Xmin, Xmax, topRef, DeltaPlot)
+    return render(request, 'appgraficos/graficos01.html', figuras)
 
-    Capa = 1
-    C = 9
-    F = 5
-    P = 28
-    ExagVert = 1
-    # Xmin = 1; Xmax =11161
-    Xmin = 5450;
-    Xmax = 5700  # 0-1 Fraccion de la longitud total
-    Ymin = 80  # 0-1 Fraccion del abatimiento total
-    DeltaPlot = 0.1
 
-    fig11 = PlotT3(BD_ws, hk, G, Caudal, ArrayEsp, Capa, C, F, P, ExagVert, Xmin, Xmax, topRef, DeltaPlot)
+def graficos02(request):
+    if request.method == 'POST':
+        form = request.POST
 
-    Capa = 1
-    C = 9
-    F = 5
-    P = 17
-    ExagVert = 10
-    # Xmin = 1; Xmax =11161
-    Xmin = 5100;
-    Xmax = 6100  # 0-1 Fraccion de la longitud total
-    Ymin = 80  # 0-1 Fraccion del abatimiento total
-    DeltaPlot = 0.1
+    # Aqui é onde vai o input
+    hk = int(form['hk'])  #
+    G = int(form['g'])  #
+    Caudal = int(form['caudal'])  # Caudal en litros/segundo #
+    topRef = int(form['topref'])  # Superficie do solo
+
+    Capa = int(form['capa1'])
+    C = int(form['c1'])
+    F = int(form['f1'])
+    P = int(form['p1'])
+    ExagVert = int(form['exagvert1'])
+    Xmin = int(form['xmin1'])
+    Xmax = int(form['xmax1'])
+    Ymin = int(form['ymin1'])
+    DeltaPlot = float(form['deltaplot1'])
+
     fig12 = PlotT3(BD_ws, hk, G, Caudal, ArrayEsp, Capa, C, F, P, ExagVert, Xmin, Xmax, topRef, DeltaPlot)
+
+    Capa = int(form['capa2'])
+    C = int(form['c2'])
+    F = int(form['f2'])
+    P = int(form['p2'])
+    ExagVert = int(form['exagvert2'])
+    Xmin = int(form['xmin2'])
+    Xmax = int(form['xmax2'])
+    Ymin = int(form['ymin2'])
+    DeltaPlot = float(form['deltaplot2'])
+    fig13 = PlotT3(BD_ws, hk, G, Caudal, ArrayEsp, Capa, C, F, P, ExagVert, Xmin, Xmax, topRef, DeltaPlot)
+
+    Capa = int(form['capa3'])
+    C = int(form['c3'])
+    F = int(form['f3'])
+    P = int(form['p3'])
+    ExagVert = int(form['exagvert3'])
+    Xmin = int(form['xmin3'])
+    Xmax = int(form['xmax3'])
+    Ymin = int(form['ymin3'])
+    DeltaPlot = float(form['deltaplot3'])
+    fig14 = PlotT3(BD_ws, hk, G, Caudal, ArrayEsp, Capa, C, F, P, ExagVert, Xmin, Xmax, topRef, DeltaPlot)
 
     # Outro botão para pular as imagens
     # Daqui pra frente as funçoes serao juntas para apresentar as imagens
-    Capa = 1
-    C = 9
-    F = 5
-    P = 15
+
+    Capa = int(form['capa4'])
+    C = int(form['c4'])
+    F = int(form['f4'])
+    P = int(form['p4'])
 
     Table = 'G{}Q{}KI'.format(G, Caudal)
     Id = 'K{}I'.format(hk)
@@ -148,6 +180,9 @@ def resultados(request):
     wt = get_water_table(H, per_idx=None)
     plt.imshow(wt)
     plt.colorbar(label='Elevation');
+    buf = BytesIO()
+    plt.savefig(buf, format='png', dpi=300)
+    fig15 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
 
     Table = 'G{}Q{}KI'.format(G, Caudal)
     Id = 'K{}I'.format(hk)
@@ -174,16 +209,22 @@ def resultados(request):
     fig.subplots_adjust(right=.8)
     fig.subplots_adjust(top=1.1)
     cbar_ax = fig.add_axes([0.85, 0.15, 0.03, 0.7])
-    fig.colorbar(im, cax=cbar_ax, label='positive downward');
+    fig.colorbar(im, cax=cbar_ax, label='Positive Downward');
 
     pd.options.display.float_format = '{:.3f}'.format
     df2 = pd.DataFrame(data=dh[0])
+    buf = BytesIO()
+    plt.savefig(buf, format='png', dpi=300)
+    fig16 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
 
     st = get_saturated_thickness(H, topRef, per_idx=None)
     fig = plt.figure(figsize=(15, 15))
     plt.imshow(st)
-    plt.colorbar(label='Saturated thickness')
+    plt.colorbar(label='Saturated Thickness')
     plt.title('Layer 1');
+    buf = BytesIO()
+    plt.savefig(buf, format='png', dpi=300)
+    fig17 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
 
     # Arquivos de texto, extensão do flopy, colocar meu novo roteiro
     model_ws = os.path.join(carpeta, 'Model')
@@ -195,23 +236,22 @@ def resultados(request):
     ax = df.plot(kind="bar", figsize=(6, 6))
     ax.set_xticklabels(["historic", "scenario"])
     # plt.show()
+    buf = BytesIO()
+    plt.savefig(buf, format='png', dpi=300)
+    fig18 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
 
     incrementaldf, cumulativedf = lst.get_dataframes()
     incrementaldf
 
     figuras = {
-        'fig1': fig1,
-        'fig2': fig2,
-        'fig3': fig3,
-        'fig4': fig4,
-        'fig5': fig5,
-        'fig6': fig6,
-        'fig7': fig7,
-        'fig8': fig8,
-        'fig9': fig9,
-        'fig10': fig10,
-        'fig11': fig11,
         'fig12': fig12,
+        'fig13': fig13,
+        'fig14': fig14,
+        'fig15': fig15,
+        'fig16': fig16,
+        'fig17': fig17,
+        'fig18': fig18,
     }
+    buf.close()
 
-    return render(request, 'appgraficos/resultados.html', figuras)
+    return render(request, 'appgraficos/graficos02.html', figuras)

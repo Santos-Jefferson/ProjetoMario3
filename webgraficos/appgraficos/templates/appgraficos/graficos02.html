@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<img src="data:image/png;base64,{{fig12}}" alt="" width=800 height=auto/>
+<img src="data:image/png;base64,{{fig13}}" alt="" width=800 height=auto/>
+<img src="data:image/png;base64,{{fig14}}" alt="" width=800 height=auto/>
+<img src="data:image/png;base64,{{fig15}}" alt="" width=800 height=auto/>
+<img src="data:image/png;base64,{{fig16}}" alt="" width=800 height=auto/>
+<img src="data:image/png;base64,{{fig17}}" alt="" width=800 height=auto/>
+<img src="data:image/png;base64,{{fig18}}" alt="" width=800 height=auto/>
+
+
+{% for field in form %}
+<p class="help">{{ field.value }}</p>
+{% endfor %}
+
+
+{% endblock %}

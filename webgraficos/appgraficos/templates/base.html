@@ -1,15 +1,38 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>WebGraficos</title>
+    <script src="{% static 'js/jquery-3.5.1.min.js' %}"></script>
+    <link href="{% static 'css/base.css' %}" rel="stylesheet">
 </head>
 <body>
 
-<h1>Sistema Gerador de Gráficos</h1>
+<div id="header">
+    <span class="logo"><a href="{% url "index" %}">Sistema Gerador de Gráficos</a></span>
+
+     <ul class="menu">
+      <li>
+        <a href="{% url "input_graficos01" %}">Seção Gráficos 01</a> |
+      </li>
+       <li>
+        <a href="{% url "input_graficos02" %}">Seção Gráficos 02</a>
+      </li>
+    </ul>
+</div>
+
+<div id="content">
 
 {% block content %}
 {% endblock %}
+</div>
 
+
+ <script>
+        $(window).on("load",function(){
+          $(".loader-wrapper").fadeOut("slow");
+        });
+    </script>
 </body>
 </html>
