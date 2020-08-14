@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
 
-<form action={% url "graficos_plot3" %} method="post">
+<form action={% url "graficos02" %} method="post">
 {% csrf_token %}
 <table>
     {{ form.as_table }}

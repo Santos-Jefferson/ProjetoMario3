@@ -1,4 +1,6 @@
 import os
+from io import BytesIO
+import base64
 import matplotlib.pyplot as plt
 from matplotlib import cm
 import sqlite3
@@ -6,9 +8,6 @@ import io
 import numpy as np
 import itertools as it
 from flopy.discretization.structuredgrid import StructuredGrid
-from io import BytesIO
-import base64
-
 
 
 # Este é um grafico
@@ -35,10 +34,10 @@ def PlotT1(BD_ws, hk, G, Caudal, ArrayEsp, Capa, ExagVert, topref):
         MinArrayFin = np.ma.round(np.amin(CiH), decimals=2)
         MinArray.append(MinArrayFin)
 
-        Xn = len(CiH);
-        delcol = ArrayEsp[i];
+        Xn = len(CiH)
+        delcol = ArrayEsp[i]
         longitud = Xn * delcol
-        LongDist.append(longitud);
+        LongDist.append(longitud)
         NC.append(Xn)
         x2 = np.linspace((MaxL - Xn * ArrayEsp[i]), MaxL, Xn)
 
@@ -48,6 +47,10 @@ def PlotT1(BD_ws, hk, G, Caudal, ArrayEsp, Capa, ExagVert, topref):
         Longitud: {},  Hmin: {}'''.format(Capa, ArrayEsp, NC, LongDist, MinArray))
         ax.set_aspect(ExagVert)
         plt.plot(x2, CiH)
+        buf = BytesIO()
+        plt.savefig(buf, format='png', dpi=300)
+        fig1 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
+        return fig1
 
 
 def readSingleRowTG(BD_ws, Table, developerId):
@@ -95,10 +98,10 @@ def PlotT2(BD_ws, hk, G, Caudal, ArrayEsp, Capa, ExagVert, Xmin, Xmax, Ymin, top
     MinArray = [np.ma.round(np.amin(CiH_a), decimals=2), np.ma.round(np.amin(CiH_b), decimals=2),
                 np.ma.round(np.amin(CiH_i), decimals=2)]
 
-    X_a = int(((Record[8] / ArrayEsp[len(ArrayEsp) - 1]) - 3) / 2);
-    delcol_a = ArrayEsp[len(ArrayEsp) - 1];
+    X_a = int(((Record[8] / ArrayEsp[len(ArrayEsp) - 1]) - 3) / 2)
+    delcol_a = ArrayEsp[len(ArrayEsp) - 1]
     longitud = Record[8]
-    X_b = int(((Record[8] / ArrayEsp[0])) / 2);
+    X_b = int(((Record[8] / ArrayEsp[0])) / 2)
     delcol_b = ArrayEsp[0]
     X_i = len(Record[2]) / 2
 
@@ -122,8 +125,11 @@ def PlotT2(BD_ws, hk, G, Caudal, ArrayEsp, Capa, ExagVert, Xmin, Xmax, Ymin, top
     plt.plot(x2_a, CiH_a, color='red')
     plt.plot(x2_b, CiH_b, color='blue')
     plt.plot(x2_i, CiH_i, color='green')
+    buf = BytesIO()
+    plt.savefig(buf, format='png', dpi=300)
+    fig2 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
 
-    return (x2_a, x2_b, x2_i, CiH_a, CiH_b, CiH_i)
+    return x2_a, x2_b, x2_i, CiH_a, CiH_b, CiH_i, fig2
 
 
 def DisIrregurlar(BD_ws, G, Caudal, hk):
@@ -287,7 +293,7 @@ def distCelda(SerieAcum, DivAcum, DivBloque, Intervalo, R, Array, serie):
             if arrayf2[r] in Farray2:
                 rarray2.append(arrayf2[r])
 
-        if rarray2 != []:
+        if rarray2:
             rmin = np.amin(rarray2)
             IndexA = Farray2[::-1]
             Index = IndexA.index(rmin)
@@ -436,7 +442,7 @@ def PlotT2I(BD_ws, hk, G, Caudal, Capa, D, folderpath):
                      loc='left')
     buf = BytesIO()
     plt.savefig(buf, format='png', dpi=300)
-    fig1 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
+    fig3 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
     # print(image_base64)
 
     # plt.savefig(MyFiles + '/f1.png', format='png')
@@ -459,7 +465,7 @@ def PlotT2I(BD_ws, hk, G, Caudal, Capa, D, folderpath):
     t = ax.set_title('Fig {}: Layer {}; hmin={:6.1f}, hmax={:6.1f}'.format(2, Capa, hmin, hmax), loc='left')
     buf = BytesIO()
     plt.savefig(buf, format='png', dpi=300)
-    fig2 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
+    fig4 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
     # plt.savefig(MyFiles + '/f2.png', format='png')
     # --------------------------------------------------
     fig = plt.figure(figsize=(10, 10))
@@ -472,7 +478,7 @@ def PlotT2I(BD_ws, hk, G, Caudal, Capa, D, folderpath):
     t = ax.set_title('Fig {}: vector Layer {}; hmin={:6.2f}, hmax={:6.2f}'.format(3, Capa, hmin, hmax), loc='left')
     buf = BytesIO()
     plt.savefig(buf, format='png', dpi=300)
-    fig3 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
+    fig5 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
     # plt.savefig(MyFiles + '/f3.png', format='png')
     # --------------------------------------------------
     fig = plt.figure(figsize=(10, 10))
@@ -482,7 +488,7 @@ def PlotT2I(BD_ws, hk, G, Caudal, Capa, D, folderpath):
     t = ax.set_title('Fig {}: 3d contour Layer {}; hmin={:6.2f}, hmax={:6.2f}'.format(4, Capa, hmin, hmax), loc='left')
     buf = BytesIO()
     plt.savefig(buf, format='png', dpi=300)
-    fig4 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
+    fig6 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
     # plt.savefig(MyFiles + '/f4.png', format='png')
     # --------------------------------------------------
     fig = plt.figure(figsize=(10, 10))
@@ -492,7 +498,7 @@ def PlotT2I(BD_ws, hk, G, Caudal, Capa, D, folderpath):
                      loc='left')
     buf = BytesIO()
     plt.savefig(buf, format='png', dpi=300)
-    fig5 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
+    fig7 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
     # plt.savefig(MyFiles + '/f5.png', format='png')
     # --------------------------------------------------
     fig = plt.figure(figsize=(10, 10))
@@ -502,7 +508,7 @@ def PlotT2I(BD_ws, hk, G, Caudal, Capa, D, folderpath):
     t = ax.set_title('Fig {}: 3d Mesh Layer {}; hmin={:6.2f}, hmax={:6.2f}'.format(6, Capa, hmin, hmax), loc='left')
     buf = BytesIO()
     plt.savefig(buf, format='png', dpi=300)
-    fig6 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
+    fig8 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
     # plt.savefig(MyFiles + '/f6.png', format='png')
     # --------------------------------------------------
     fig = plt.figure(figsize=(10, 10))
@@ -511,7 +517,7 @@ def PlotT2I(BD_ws, hk, G, Caudal, Capa, D, folderpath):
     t = ax.set_title('Fig {}: 3d Grid Layer {}; hmin={:6.2f}, hmax={:6.2f}'.format(7, Capa, hmin, hmax), loc='left')
     buf = BytesIO()
     plt.savefig(buf, format='png', dpi=300)
-    fig7 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
+    fig9 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
     # plt.savefig(MyFiles + '/f7.png', format='png')
     # --------------------------------------------------
     fig = plt.figure(figsize=(10, 10))
@@ -523,7 +529,7 @@ def PlotT2I(BD_ws, hk, G, Caudal, Capa, D, folderpath):
                      loc='left')
     buf = BytesIO()
     plt.savefig(buf, format='png', dpi=300)
-    fig8 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
+    fig10 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
     # plt.savefig(MyFiles + '/f8.png', format='png')
     # --------------------------------------------------
     fig = plt.figure(figsize=(10, 10))
@@ -538,10 +544,10 @@ def PlotT2I(BD_ws, hk, G, Caudal, Capa, D, folderpath):
                      loc='left')
     buf = BytesIO()
     plt.savefig(buf, format='png', dpi=300)
-    fig9 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
+    fig11 = base64.b64encode(buf.getvalue()).decode('utf-8').replace('\n', '')
     # plt.savefig(MyFiles + '/f9.png', format='png')
     buf.close()
-    return fig1, fig2, fig3, fig4, fig5, fig6, fig7, fig8, fig9
+    return fig3, fig4, fig5, fig6, fig7, fig8, fig9, fig10, fig11
 
 
 def PlotT3(BD_ws, hk, G, Caudal, ArrayEsp, Capa, C, F, P, ExagVert, Xmin, Xmax, topref, DeltaPlot):
@@ -597,7 +603,6 @@ def PlotT3(BD_ws, hk, G, Caudal, ArrayEsp, Capa, C, F, P, ExagVert, Xmin, Xmax, 
     # plt.savefig(MyFiles + '/Plot3.png', format='png')
     buf.close()
     return fig10
-
 
 
 def get_water_table(heads, per_idx=None):

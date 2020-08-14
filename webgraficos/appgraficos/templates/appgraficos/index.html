@@ -2,13 +2,7 @@
 {% load static %}
 {% block content %}
 
-<form action={% url "resultados" %} method="post">
-{% csrf_token %}
-<table>
-    {{ form.as_table }}
-</table>
-<input type="submit" value="Gerar Gráficos">
-</form>
-
+<h2>Seja Bem-Vindo!</h2>
+<h4>Por favor, selecione uma das opções acima!</h4>
 
 {% endblock %}
